@@ -1,72 +1,48 @@
-[build-system]
-requires = [
-    "hatchling>=1.8.1",
-]
-build-backend = "hatchling.build"
+# Create a score
+score = stream.Score()
+score.append(tempo.MetronomeMark(number=96))  # moderate jazz tempo
 
-[project]
-name = "music21"
-dynamic = [
-    "version",
-]
-description = "A Toolkit for Computer-Aided Musical Analysis and Computational Musicology."
-readme = "README.md"
-license = "BSD-3-Clause"
-requires-python = ">=3.10"
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Console",
-    "Environment :: Web Environment",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Education",
-    "Intended Audience :: End Users/Desktop",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
-    "Natural Language :: English",
-    "Operating System :: MacOS",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: OS Independent",
-    "Operating System :: POSIX",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Artistic Software",
-    "Topic :: Multimedia :: Sound/Audio",
-    "Topic :: Multimedia :: Sound/Audio :: Conversion",
-    "Topic :: Multimedia :: Sound/Audio :: MIDI",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Typing :: Typed",
-]
+# Define parts
+parts = {
+    "Baritone Sax": instrument.BaritoneSaxophone(),
+    "Trumpet": instrument.Trumpet(),
+    "Alto Sax": instrument.AltoSaxophone()
+}
 
-# when hatch-requirements-txt is stable, replace with that
-dependencies = [
-    "chardet",
-    "joblib",
-    "jsonpickle",
-    "matplotlib",
-    "more_itertools",
-    "numpy<2.0.0",
-    "requests",
-    "webcolors>=1.5",
-]
+# Choose a jazzy key
+composition_key = key.Key('Bb')  # common jazz key for sax and trumpet
 
-[[project.authors]]
-name = "Michael Scott Asato Cuthbert"
-email = "michael.asato.cuthbert@gmail.com"
+# Create a part for each instrument
+for name, instr in parts.items():
+    part = stream.Part()
+    part.append(instr)
+    part.append(meter.TimeSignature('4/4'))
+    part.append(composition_key)
+    
+    # Create 16 measures with some jazz-like phrasing (using swing-friendly rhythms and blue notes)
+    for i in range(16):
+        m = stream.Measure(number=i+1)
+        if name == "Baritone Sax":
+            # Root-heavy, rhythmic bassline with syncopation
+            m.append(note.Rest(quarterLength=0.5))
+            m.append(note.Note('Bb2', quarterLength=1))
+            m.append(note.Note('D3', quarterLength=1))
+            m.append(note.Rest(quarterLength=1.5))
+        elif name == "Trumpet":
+            # Melody with blues inflections
+            m.append(note.Note('F4', quarterLength=1))
+            m.append(note.Note('Ab4', quarterLength=0.5))
+            m.append(note.Note('Bb4', quarterLength=1))
+            m.append(note.Rest(quarterLength=1.5))
+        elif name == "Alto Sax":
+            # Harmonizing line with counter-melody
+            m.append(note.Rest(quarterLength=1))
+            m.append(note.Note('D4', quarterLength=1))
+            m.append(note.Note('F4', quarterLength=1))
+            m.append(note.Rest(quarterLength=1))
+        part.append(m)
+    score.append(part)
 
-[project.urls]
-Download = "https://github.com/cuthbertLab/music21/releases/"
-Homepage = "https://github.com/cuthbertLab/music21"
-Documentation = "https://www.music21.org/music21docs/"
-
-[tool.hatch.version]
-path = "music21/_version.py"
-
-[tool.hatch.build.targets.sdist]
-include = [
-    "music21",
-    "py.typed",  # indicates source is typed.
-]
+# Show the score
+score.write('musicxml.pdf', fp='/mnt/data/Jazzy_Trio_16_Measures.pdf')
+score.write('musicxml', fp='Jazzy_Trio_16_Measures.musicxml')
